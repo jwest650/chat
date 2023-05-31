@@ -13,10 +13,8 @@ import AddFriendModal from "../components/utils/AddFriendModal";
 import CreateGroupModal from "../components/utils/CreateGroupModal";
 import GroupRightBar from "../components/GroupRightBar";
 
-let url =
-     process.env.NODE_ENV === "production"
-          ? `${process.env.HOST}`
-          : "http://localhost:5000";
+let url = "https://chattyserver-4731.onrender.com";
+
 let socket = io(url);
 const Home: NextPage = () => {
      const [
