@@ -9,6 +9,7 @@ import EmojiPicker from "emoji-picker-react";
 import { IoIosClose } from "react-icons/io";
 import GroupHeader from "./GroupHeader";
 import { HashLoader } from "react-spinners";
+import { instance } from "./utils/axiosInstance";
 const ChatContainer = ({ socket, onlineUsers }) => {
      const [
           message,
@@ -38,12 +39,9 @@ const ChatContainer = ({ socket, onlineUsers }) => {
      const lastElref = useRef(null);
 
      const fetcher = async () => {
-          const url =
-               chatType !== "chats"
-                    ? "http://localhost:5000/group/messages"
-                    : "http://localhost:5000/messages";
+          const url = chatType !== "chats" ? "/group/messages" : "/messages";
           if (!roomID) return;
-          const { data } = await axios.get(`${url}/${roomID}`);
+          const { data } = await instance.get(`${url}/${roomID}`);
 
           return data;
      };

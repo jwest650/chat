@@ -6,6 +6,7 @@ import axios from "axios";
 import moment from "moment";
 import useFilter from "./utils/Filter";
 import Participant from "./Participant";
+import { instance } from "./utils/axiosInstance";
 const GroupRightBar = () => {
      const [users, roomID, darkmode, messages, user] = useUser((state) => [
           state.users,
@@ -21,9 +22,7 @@ const GroupRightBar = () => {
           error,
           isLoading,
      } = useSWR(["group", roomID], async () => {
-          const { data } = await axios.get(
-               `http://localhost:5000/group/messages/${roomID}`
-          );
+          const { data } = await instance.get(`/group/messages/${roomID}`);
           return data;
      });
 

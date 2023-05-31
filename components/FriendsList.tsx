@@ -4,16 +4,17 @@ import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import useUser from "../store/userStore";
 import useSWR from "swr";
+import { instance } from "./utils/axiosInstance";
 
 const FriendsList = ({ val }) => {
      const [roomID] = useUser((state) => [state.roomID]);
      const [isAdded, setisAdded] = useState(false);
 
      const fetcher = async () => {
-          const url = "http://localhost:5000/group/messages";
+          const url = "/group/messages";
 
           //  if (!roomID) return;
-          const { data } = await axios.get(`${url}/${roomID}`);
+          const { data } = await instance.get(`${url}/${roomID}`);
 
           return data;
      };
@@ -42,7 +43,7 @@ const FriendsList = ({ val }) => {
           };
           try {
                if (roomID) {
-                    await axios.post("http://localhost:5000/group/add", result);
+                    await instance.post("/group/add", result);
                     toast(`success`, {
                          position: "top-right",
                          autoClose: 3000,

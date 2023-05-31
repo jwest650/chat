@@ -5,6 +5,7 @@ import useUser from "../store/userStore";
 import useSWR from "swr";
 import AddFriendModal from "./utils/AddFriendModal";
 import CreateGroupModal from "./utils/CreateGroupModal";
+import { instance } from "./utils/axiosInstance";
 
 const SwitchChat = () => {
      const [sent, setsent] = useState(false);
@@ -32,11 +33,8 @@ const SwitchChat = () => {
           fetcher
      );
      async function fetcher() {
-          const url =
-               chatType == "chats"
-                    ? "http://localhost:5000/chats"
-                    : "http://localhost:5000/group";
-          const { data: res } = await axios.get(`${url}/${user?.name}`);
+          const url = chatType == "chats" ? "/chats" : "/group";
+          const { data: res } = await instance.get(`${url}/${user?.name}`);
           console.log("k");
 
           return res;

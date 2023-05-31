@@ -4,13 +4,14 @@ import React, { useState, useEffect } from "react";
 import useSWR from "swr";
 import useFilter from "./utils/Filter";
 import useUser from "../store/userStore";
+import { instance } from "./utils/axiosInstance";
 
 const Participant = ({ val, key }) => {
      const [messages] = useUser((state) => [state.data]);
      const [user, setuser] = useState(null);
 
      const { data: res } = useSWR([val], async () => {
-          const { data } = await axios.get(`http://localhost:5000/user/${val}`);
+          const { data } = await instance.get(`/user/${val}`);
           return data;
      });
      const sent = useFilter(messages, val);

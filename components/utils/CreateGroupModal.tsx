@@ -8,6 +8,7 @@ import { gsap } from "gsap";
 import { SlCloudUpload } from "react-icons/sl";
 import { getImageUrl } from "./getImageUrl";
 import Image from "next/image";
+import { instance } from "./axiosInstance";
 const CreateGroupModal = ({ setsent }) => {
      const box = useRef();
      const [title, settitle] = useState("");
@@ -32,7 +33,7 @@ const CreateGroupModal = ({ setsent }) => {
                };
 
                if (title && url) {
-                    await axios.post("http://localhost:5000/group", result);
+                    await instance.post("/group", result);
                }
                settitle("");
                setsent(true);

@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { BiCheckDouble } from "react-icons/bi";
 import { IoIosArrowDown } from "react-icons/io";
 import axios from "axios";
+import { instance } from "./utils/axiosInstance";
 const Chat = ({ data, lastElref, socket }) => {
      const Wave = dynamic(() => import("./utils/Waveform"), { ssr: false });
 
@@ -23,7 +24,7 @@ const Chat = ({ data, lastElref, socket }) => {
      const updateSeen = async () => {
           if (!name) return;
           try {
-               await axios.put("http://localhost:5000/messages/seen", {
+               await instance.put("/messages/seen", {
                     roomID,
                     name,
                });

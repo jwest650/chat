@@ -10,6 +10,7 @@ import Head from "next/head";
 import { CgProfile } from "react-icons/cg";
 import { ToastContainer, toast } from "react-toastify";
 import { getImageUrl } from "../../components/utils/getImageUrl";
+import { instance } from "../../components/utils/axiosInstance";
 const Signup = () => {
      const [image, setimage] = useState({ src: "", files: "" });
      const router = useRouter();
@@ -36,7 +37,7 @@ const Signup = () => {
                     const url = await getImageUrl(image);
 
                     let res = { ...data, image: url };
-                    await axios.post("http://localhost:5000/user", res);
+                    await instance.post("/user", res);
                     router.push("/login");
                } catch (error) {
                     console.log(error);

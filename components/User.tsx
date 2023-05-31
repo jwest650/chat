@@ -4,15 +4,14 @@ import moment from "moment";
 import useUser from "../store/userStore";
 import axios from "axios";
 import useSWR from "swr";
+import { instance } from "./utils/axiosInstance";
 
 const User = ({ val, id, setRoomId, active, setactive }) => {
      const [darkmode] = useUser((state) => [state.darkmode]);
      const [lastmessage, setlastmessage] = useState("");
      const [time, settime] = useState("");
      const fetcher = async () => {
-          const { data } = await axios.get(
-               `http://localhost:5000/messages/${id}`
-          );
+          const { data } = await instance.get(`/messages/${id}`);
 
           return data;
      };

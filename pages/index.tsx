@@ -13,7 +13,13 @@ import AddFriendModal from "../components/utils/AddFriendModal";
 import CreateGroupModal from "../components/utils/CreateGroupModal";
 import GroupRightBar from "../components/GroupRightBar";
 
-let socket = io("http://localhost:5000");
+let socket = io(
+     `${
+          process.env.NODE_ENV == "production"
+               ? process.env.HOST
+               : "http://localhost:5000"
+     }`
+);
 const Home: NextPage = () => {
      const [
           user,

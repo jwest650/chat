@@ -4,6 +4,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import useUser from "../store/userStore";
 import useFilter from "./utils/Filter";
+import { instance } from "./utils/axiosInstance";
 
 const Rightsidebar = ({ socket, lastSeen }) => {
      const [toggle, settoggle] = useState(false);
@@ -31,9 +32,7 @@ const Rightsidebar = ({ socket, lastSeen }) => {
           return res.user;
      }
      const fetcher = async () => {
-          const { data } = await axios.get(
-               `http://localhost:5000/messages/${roomID}`
-          );
+          const { data } = await instance.get(`/messages/${roomID}`);
 
           return data;
      };

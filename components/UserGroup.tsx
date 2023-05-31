@@ -5,6 +5,7 @@ import moment from "moment";
 
 import useSWR from "swr";
 import axios from "axios";
+import { instance } from "./utils/axiosInstance";
 
 const UserGroup = ({ val, setRoomId, active, setactive }) => {
      const [darkmode] = useUser((state) => [state.darkmode]);
@@ -13,9 +14,7 @@ const UserGroup = ({ val, setRoomId, active, setactive }) => {
      const [time, settime] = useState("");
 
      const fetcher = async () => {
-          const { data } = await axios.get(
-               `http://localhost:5000/group/messages/${val.roomId}`
-          );
+          const { data } = await instance.get(`/group/messages/${val.roomId}`);
 
           return data;
      };

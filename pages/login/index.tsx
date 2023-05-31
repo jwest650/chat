@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import useUser from "../../store/userStore";
 import Head from "next/head";
+import { instance } from "../../components/utils/axiosInstance";
 const Login = () => {
      const [user, getUser] = useUser((state) => [state.user, state.getUser]);
      const [isloading, setisloading] = useState(false);
@@ -19,10 +20,7 @@ const Login = () => {
      async function getLogin(data) {
           setisloading(true);
           try {
-               const { data: result } = await axios.post(
-                    "http://localhost:5000/login",
-                    data
-               );
+               const { data: result } = await instance.post("/login", data);
                getUser(result.data);
 
                router.push("/");
