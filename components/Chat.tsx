@@ -3,16 +3,40 @@ import moment from "moment";
 import Image from "next/image";
 import React from "react";
 import useUser from "../store/userStore";
-import { motion } from "framer-motion";
-import { decode as base64_decode, encode as base64_encode } from "base-64";
+import dynamic from "next/dynamic";
+import { BiCheckDouble } from "react-icons/bi";
+import { IoIosArrowDown } from "react-icons/io";
+import axios from "axios";
+const Chat = ({ data, lastElref, socket }) => {
+     const Wave = dynamic(() => import("./utils/Waveform"), { ssr: false });
 
-import { VscCheckAll } from "react-icons/vsc";
-import Audio from "./utils/Audio";
-const Chat = ({ data, lastElref, sent }) => {
-     const [user] = useUser((state) => [state.user]);
+     const [user, roomID, setMesg, msg] = useUser((state) => [
+          state.user,
+          state.roomID,
+          state.setMesg,
+          state.selectedMsg,
+     ]);
      const [picture, setpicture] = useState([]);
+     const [mark, setmark] = useState("false");
+     const [toggleMsgList, settoggleMsgList] = useState(false);
+     let name = data.name !== user.name ? data.name : "";
+     const updateSeen = async () => {
+          if (!name) return;
+          try {
+               await axios.put("http://localhost:5000/messages/seen", {
+                    roomID,
+                    name,
+               });
+               socket.emit("seen", roomID);
+          } catch (error) {
+               console.log(error);
+          }
+     };
      const show =
-          data.message !== "sent image" && data.message !== "sent audio"
+          data.message !== "sent image" &&
+          data.message !== "sent audio" &&
+          data.message !== "voice record" &&
+          data.message !== "sent doc"
                ? true
                : false;
      useEffect(() => {
@@ -23,6 +47,21 @@ const Chat = ({ data, lastElref, sent }) => {
           }
      }, []);
 
+     useEffect(() => {
+          updateSeen();
+     }, []);
+     useEffect(() => {
+          socket.on("mark", () => {
+               setmark("true");
+          });
+     }, []);
+
+     const handleAction = (val) => {
+          if (val == "reply") {
+               setMesg(data);
+          }
+          settoggleMsgList(false);
+     };
      return (
           <div>
                <section
@@ -38,70 +77,116 @@ const Chat = ({ data, lastElref, sent }) => {
                               className="rounded-full"
                          />
                     </aside>
-                    <motion.aside
-                         initial={{ scale: 0.4, y: 100 }}
-                         animate={{ scale: 1, y: 0 }}
-                         transition={{ duration: 0.3 }}
-                         className="mx-1 "
-                    >
+                    <aside className="mx-1 group relative">
                          <div
                               className={`${
                                    user?.name == data.name ? "text-right " : ""
-                              } space-x-2 capitalize `}
+                              } space-x-2 capitalize  `}
                          >
-                              <span className="">
+                              <span className="font-bold text-md">
                                    {data.name == user.name ? "you" : data.name}
                               </span>
-                              <small className="">
-                                   {moment(data?.createdAt).format("LT")}
-                              </small>
+                              <span className="relative">
+                                   <small>
+                                        {" "}
+                                        {moment(data?.createdAt).format("LT")}
+                                   </small>
+                                   <button
+                                        className={`${
+                                             data.name == user.name
+                                                  ? "right-1 top-1"
+                                                  : ""
+                                        }
+                                        absolute top-1  group-hover:inline hidden pt-2 `}
+                                        onClick={() =>
+                                             settoggleMsgList(!toggleMsgList)
+                                        }
+                                   >
+                                        <IoIosArrowDown className="" />
+                                   </button>
+                              </span>
                          </div>
-
-                         {show ? (
-                              <div
-                                   className={`${
-                                        user?.name == data.name
-                                             ? "bg-[#1557FF] rounded-tl-2xl rounded-b-2xl text-white"
-                                             : "bg-[#F5F4F7] rounded-tr-2xl  rounded-b-2xl text-gray-500"
-                                   } py-2 max-w-[500px] w-fit px-4  mt-1 `}
-                              >
-                                   {data?.message}
-                              </div>
-                         ) : (
-                              ""
-                         )}
-                         {picture.length > -1
+                         {picture.length
                               ? picture.map((val, i) => (
                                      <Image
                                           key={i}
                                           src={val}
                                           width={200}
                                           height={200}
-                                          className="rounded border-4 "
+                                          className="rounded "
                                      />
                                 ))
                               : ""}
-
-                         {data.audio ? <Audio data={data.audio} /> : ""}
-
-                         {user?.name == data.name && (
-                              <div>
-                                   {data?.sent == true ? (
-                                        <VscCheckAll
-                                             className={`ml-auto ${
-                                                  data.sent
-                                                       ? "text-green-700"
-                                                       : ""
-                                             }`}
-                                        />
-                                   ) : sent == "true" ? (
-                                        <VscCheckAll className={`ml-auto`} />
-                                   ) : (
-                                        ""
-                                   )}
+                         {data.audio ? <Wave url={data.audio} /> : ""}
+                         {data.rec ? <Wave url={data.rec} /> : ""}
+                         {data.doc ? (
+                              <div className="">
+                                   <iframe
+                                        frameBorder={0}
+                                        src={data?.doc}
+                                        className="w-52 h-52 border-2 "
+                                   ></iframe>
+                              </div>
+                         ) : (
+                              ""
+                         )}
+                         {show && !data.replyMessage ? (
+                              <div
+                                   className={`${
+                                        user?.name == data.name
+                                             ? "bg-[#bcb8b1] rounded-tl-xl rounded-b-xl text-white"
+                                             : "bg-[#219ebc] rounded-tr-xl  rounded-b-xl text-white"
+                                   } py-2 max-w-[500px] w-fit px-4  mt-1 `}
+                              >
+                                   {data?.message}
+                              </div>
+                         ) : (
+                              <div
+                                   className={`${
+                                        user?.name == data.name
+                                             ? "bg-[#bcb8b1] rounded-tl-xl rounded-b-xl text-white"
+                                             : "bg-[#219ebc] rounded-tr-xl  rounded-b-xl text-white"
+                                   }  max-w-[500px] w-fit  py-[2px] px-[2px]  mt-1 `}
+                              >
+                                   <p
+                                        className={`border-l-4 border-green-500 p-2 bg-[#f8f9fa] text-black  px-4 ${
+                                             user?.name == data.name
+                                                  ? " rounded-tl-xl rounded-b-lg "
+                                                  : " rounded-tr-xl  rounded-b-lg "
+                                        } `}
+                                   >
+                                        {data?.replyMessage}
+                                   </p>
+                                   <p className="px-2 py-1"> {data?.message}</p>
                               </div>
                          )}
-                    </motion.aside>
+
+                         {data.seen && user.name == data.name ? (
+                              <BiCheckDouble
+                                   className={`ml-auto text-green-700 text-sm`}
+                              />
+                         ) : mark == "true" && user.name == data.name ? (
+                              <BiCheckDouble
+                                   className={`ml-auto text-green-700 text-sm`}
+                              />
+                         ) : (
+                              ""
+                         )}
+
+                         {toggleMsgList && (
+                              <aside className="bg-white absolute left-14 w-[110px] w-fit capitalize space-y-2 shadow cursor-pointer z-50 ">
+                                   {option.map((val, i) => (
+                                        <p
+                                             key={i}
+                                             onClick={() => handleAction(val)}
+                                             className="hover:bg-gray-100 p-1"
+                                        >
+                                             {val}
+                                        </p>
+                                   ))}
+                              </aside>
+                         )}
+                    </aside>
 
                     <div ref={lastElref} />
                </section>
@@ -110,3 +195,5 @@ const Chat = ({ data, lastElref, sent }) => {
 };
 
 export default Chat;
+
+const option = ["reply", "react to message", "delete message"];

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { HiOutlineChatAlt2 } from "react-icons/hi";
-import { AiFillWechat } from "react-icons/ai";
-import { TbFriends } from "react-icons/tb";
+import { TbFriends, TbUserPlus } from "react-icons/tb";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaSignOutAlt } from "react-icons/fa";
@@ -10,27 +9,31 @@ import { MdDarkMode } from "react-icons/md";
 import useUser from "../store/userStore";
 import useSWR from "swr";
 import axios from "axios";
+import { BsChatText } from "react-icons/bs";
+import { RiGroupLine } from "react-icons/ri";
+import usegetFriends from "./hooks/getFriends";
 
-const LeftNav = () => {
+const LeftNav = ({ setactive, active }) => {
      const [toggle, settoggle] = useState(false);
-     const [active, setactive] = useState("");
-     const [user, setGroup, setChat, signOut, setdarkmode, darkmode] = useUser(
-          (state) => [
-               state.user,
-               state.getGroup,
-               state.getChat,
-               state.signOut,
-               state.setDarkMode,
-               state.darkmode,
-          ]
-     );
-     const fetcher = async () => {
-          const { data: res } = await axios.get(
-               `http://localhost:5000/chats/${user?.name}`
-          );
-          return res.friends;
-     };
-     const { data, error, isLoading } = useSWR("chats", fetcher);
+
+     const [
+          user,
+          setGroup,
+          setChat,
+          signOut,
+          setdarkmode,
+          darkmode,
+          showModal,
+     ] = useUser((state) => [
+          state.user,
+          state.getGroup,
+          state.getChat,
+          state.signOut,
+          state.setDarkMode,
+          state.darkmode,
+          state.showModal,
+     ]);
+     const { data, error, isLoading } = usegetFriends(user);
 
      useEffect(() => {
           setChat(data);
@@ -38,7 +41,11 @@ const LeftNav = () => {
      }, [data]);
 
      return (
-          <div className="w-[15%]  text-sm capitalize">
+          <div
+               className={`w-[15%]  text-sm capitalize  ${
+                    !darkmode ? "text-[#555555]" : "text-white"
+               } `}
+          >
                <section className=" h-screen flex flex-col justify-between">
                     <aside className="space-y-14 p-2">
                          <header className={`flex items-center space-x-1`}>
@@ -49,41 +56,32 @@ const LeftNav = () => {
                          <article className="space-y-8">
                               <button
                                    className={`${
-                                        active == "chat"
-                                             ? "text-blue-500"
-                                             : "text-grayy-500"
-                                   } flex items-center space-x-2 capitalize `}
+                                        active == "chat" ? "font-bold " : ""
+                                   } flex items-center space-x-3 capitalize `}
                                    onClick={() => {
                                         setactive("chat");
-                                        setChat(data);
                                    }}
                               >
-                                   <AiFillWechat />
+                                   <BsChatText className="text-xl" />
                                    <label>chat</label>
                               </button>
                               <button
-                                   className={`${
-                                        active == "find"
-                                             ? "text-blue-500"
-                                             : "text-grayy-500"
-                                   } flex items-center space-x-2 capitalize`}
-                                   onClick={() => setactive("find")}
-                              >
-                                   <TbFriends />
-                                   <label>find friends</label>
-                              </button>
-                              <button
-                                   className={`${
-                                        active == "groups"
-                                             ? "text-blue-500"
-                                             : "text-grayy-500"
-                                   } flex items-center space-x-2 capitalize`}
+                                   className={` flex items-center space-x-3 capitalize`}
                                    onClick={() => {
-                                        setactive("groups");
+                                        showModal("create group");
                                    }}
                               >
-                                   <HiOutlineUserGroup />
-                                   <label>groups</label>
+                                   <RiGroupLine className="text-xl" />
+                                   <label>create group</label>
+                              </button>
+                              <button
+                                   className={` flex items-center space-x-3 capitalize`}
+                                   onClick={() => {
+                                        showModal("add friend");
+                                   }}
+                              >
+                                   <TbUserPlus className="text-xl" />
+                                   <label>add friend</label>
                               </button>
                          </article>
                     </aside>

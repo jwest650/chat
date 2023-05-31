@@ -9,19 +9,33 @@ import { io } from "socket.io-client";
 import LeftNav from "../components/LeftNav";
 import { HydrationProvider, Server, Client } from "react-hydration-provider";
 import Head from "next/head";
+import AddFriendModal from "../components/utils/AddFriendModal";
+import CreateGroupModal from "../components/utils/CreateGroupModal";
+import GroupRightBar from "../components/GroupRightBar";
 
 let socket = io("http://localhost:5000");
 const Home: NextPage = () => {
-     const [user, roomID, users, darkmode, setOnlineUsers, onlineUsers] =
-          useUser((state) => [
-               state.user,
-               state.roomID,
-               state.users,
-               state.darkmode,
-               state.addOnlineUsers,
-               state.onlineUsers,
-          ]);
+     const [
+          user,
+          roomID,
+          users,
+          darkmode,
+          setOnlineUsers,
+          onlineUsers,
+          modalState,
+          chatType,
+     ] = useUser((state) => [
+          state.user,
+          state.roomID,
+          state.users,
+          state.darkmode,
+          state.addOnlineUsers,
+          state.onlineUsers,
+          state.modalState,
+          state.chatType,
+     ]);
      const [lastSeen, setlastSeen] = useState([]);
+     const [active, setactive] = useState("");
      const router = useRouter();
      useEffect(() => {
           if (user) {
@@ -33,30 +47,23 @@ const Home: NextPage = () => {
      }, [user]);
 
      useEffect(() => {
-          if (users) {
-               const friends = users?.map((val) =>
-                    val.user.name ? val.user.name : ""
-               );
-               socket.emit("online", { friends, user: user?.name });
-          }
-     }, [users]);
+          socket.emit("online", { user: user?.name });
+     }, []);
      useEffect(() => {
           roomID && socket.emit("join", roomID);
      }, [roomID]);
      useEffect(() => {
           socket.on("active", (data) => {
-               setOnlineUsers(data);
+               const res = data.filter((val) => val !== user.name);
+
+               setOnlineUsers(res);
           });
 
-          () => {
-               socket.on("offline", (data) => {
-                    const offline = onlineUsers.filter(
-                         (val) => val != data.user
-                    );
-                    setOnlineUsers(offline);
-                    setlastSeen((prev) => [data]);
-               });
-          };
+          socket.on("offline", (data) => {
+               const offline = onlineUsers.filter((val) => val != data.user);
+               setOnlineUsers(offline);
+               setlastSeen((prev) => [data]);
+          });
      }, [socket]);
 
      return (
@@ -71,23 +78,28 @@ const Home: NextPage = () => {
                                    darkmode ? "bg-[#151A1B] text-white" : " "
                               }`}
                          >
-                              <LeftNav />
+                              <LeftNav active={active} setactive={setactive} />
                               <LeftsideBar
                                    socket={socket}
                                    onlineUsers={onlineUsers}
+                                   active={active}
                               />
                               {roomID ? (
                                    <>
                                         {" "}
                                         <ChatContainer socket={socket} />
-                                        <Rightsidebar
-                                             socket={socket}
-                                             lastSeen={lastSeen}
-                                        />
+                                        {chatType == "chats" ? (
+                                             <Rightsidebar
+                                                  socket={socket}
+                                                  lastSeen={lastSeen}
+                                             />
+                                        ) : (
+                                             <GroupRightBar />
+                                        )}
                                    </>
                               ) : (
                                    <div className="text-2xl flex-1 flex justify-center items-center capitalize font-bold">
-                                        <p>select a friend to chat</p>
+                                        <p>select a friend / group to chat</p>
                                    </div>
                               )}
                          </main>

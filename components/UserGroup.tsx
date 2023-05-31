@@ -1,53 +1,55 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import moment from "moment";
+import React, { useState, useEffect } from "react";
 import useUser from "../store/userStore";
-import axios from "axios";
-import useSWR from "swr";
+import moment from "moment";
 
-const User = ({ val, id, setRoomId, active, setactive }) => {
+import useSWR from "swr";
+import axios from "axios";
+
+const UserGroup = ({ val, setRoomId, active, setactive }) => {
      const [darkmode] = useUser((state) => [state.darkmode]);
-     const [lastmessage, setlastmessage] = useState("");
+
+     const [lastMessage, setlastMessage] = useState("");
      const [time, settime] = useState("");
+
      const fetcher = async () => {
           const { data } = await axios.get(
-               `http://localhost:5000/messages/${id}`
+               `http://localhost:5000/group/messages/${val.roomId}`
           );
 
           return data;
      };
-     const { data: res } = useSWR([id], fetcher);
+
+     const { data } = useSWR("group", fetcher);
 
      useEffect(() => {
-          if (res) {
-               if (res?.chat?.messages.length > 0) {
-                    settime(
-                         res?.chat?.messages?.[res?.chat?.messages.length - 1]
-                              .createdAt
-                    );
-                    setlastmessage(
-                         res?.chat?.messages?.[res?.chat?.messages.length - 1]
-                              .message
-                    );
-               }
+          if (data?.chat.messages.length > 0) {
+               const response =
+                    data?.chat?.messages?.[data.chat.messages.length - 1]
+                         .message;
+               setlastMessage(response);
+               const time =
+                    data?.chat?.messages?.[data.chat.messages.length - 1]
+                         .createdAt;
+               settime(time);
           }
-     }, [res]);
+     }, [data]);
 
      return (
           <div
                className={` ${
-                    !darkmode && active == id
-                         ? "border-l-2  border-[#555555] bg-gradient-to-r from-slate-100  text-[#555555] "
-                         : darkmode && active == id
-                         ? "bg-gradient-to-r from-gray-500 text-white "
+                    !darkmode && active == val.roomId
+                         ? "border-l-2  border-[#555555] bg-gradient-to-r from-slate-100 text-[#555555] "
+                         : darkmode && active == val.roomId
+                         ? "bg-gradient-to-r from-gray-500 text-white"
                          : ""
-               }  px-2 py-3 ${active == id ? "" : "border-t"} `}
+               }  px-2 py-3 ${active == val.roomId ? "" : "border-t"}`}
                onClick={() => {
-                    setactive(id);
-                    setRoomId(id);
+                    setactive(val.roomId);
+                    setRoomId(val.roomId);
                }}
           >
-               <section className="flex items-center justify-between space-x-2 ">
+               <section className="flex  items-center justify-between space-x-2 ">
                     <div className="relative">
                          <Image
                               src={val?.image}
@@ -55,25 +57,23 @@ const User = ({ val, id, setRoomId, active, setactive }) => {
                               height={35}
                               className="rounded-full"
                          />
-                         {/* <div className="w-[5px] h-[5px] rounded-full bg-green-500 absolute bottom-1 right-[1px]" /> */}
                     </div>
                     <div className="w-[60%] leading-[18px] flex flex-col justify-center ">
                          <h1 className="font-semibold capitalize ">
-                              {val?.name}
+                              {val.title}
                          </h1>
-                         {lastmessage ? (
-                              <p className=" truncate ">{lastmessage}</p>
+
+                         {lastMessage ? (
+                              <p className=" truncate ">{lastMessage}</p>
                          ) : (
                               <p className="text-[#C1C1C1]">no messages</p>
                          )}
                     </div>
-                    <aside className="flex  flex-col space-x-2 items-center">
-                         {time ? (
+                    <aside className="flex whitespace-nowrap  flex-col items-center">
+                         {time && (
                               <small className=" font-bold ">
                                    {moment(time).format("LT")}
                               </small>
-                         ) : (
-                              ""
                          )}
                          <div className="w-[18px] p-2 h-[18px]  bg-[#555555] rounded-full flex items-center justify-center">
                               <small className="text-white font-bold">
@@ -86,4 +86,4 @@ const User = ({ val, id, setRoomId, active, setactive }) => {
      );
 };
 
-export default User;
+export default UserGroup;

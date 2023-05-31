@@ -72,11 +72,15 @@ const Rightsidebar = ({ socket, lastSeen }) => {
                                    height={100}
                                    className="rounded-full"
                               />
-                              <div className="w-[15px] h-[15px] rounded-full bg-green-500 absolute bottom-1 right-[8px]" />
+                              {online == "online" && (
+                                   <div className="w-[15px]  h-[15px] rounded-full bg-green-500 absolute bottom-1 right-[8px]" />
+                              )}
                          </div>
                          <div className="capitalize font-bold text-center">
                               <p>{friend?.name}</p>
-                              <small className="text-green-500">{online}</small>
+                              <small className="text-green-500 tracking-widest">
+                                   {online}
+                              </small>
                          </div>
                     </aside>
                     <aside className="flex justify-center space-x-10">
@@ -91,7 +95,13 @@ const Rightsidebar = ({ socket, lastSeen }) => {
                               <p>{sent.length}</p>
                               <p>{recieved.length}</p>
                               <p>{messages.length}</p>
-                              <p>{moment(seen).startOf("hour").fromNow()}</p>
+                              <p>
+                                   {online == "online"
+                                        ? "__"
+                                        : moment(seen)
+                                               .startOf("hour")
+                                               .fromNow()}{" "}
+                              </p>
                               <p> {moment(createdAt).format("l")}</p>
                          </div>
                     </aside>

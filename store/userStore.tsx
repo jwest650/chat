@@ -10,11 +10,37 @@ const useUser = create(
                roomID: "",
                darkmode: false,
                onlineUsers: [],
+               modalState: "",
+               chatType: "chats",
+               active: "",
+               selectedMsg: null,
+
+               setMesg: (value) =>
+                    set(() => {
+                         return { selectedMsg: value };
+                    }),
+
+               setActive: (value) =>
+                    set(() => {
+                         return { active: value };
+                    }),
+               setChatType: (value) =>
+                    set((state) => {
+                         return {
+                              chatType: value,
+                         };
+                    }),
 
                addOnlineUsers: (value) =>
                     set(() => {
                          return {
                               onlineUsers: value,
+                         };
+                    }),
+               showModal: (value) =>
+                    set((state) => {
+                         return {
+                              modalState: value,
                          };
                     }),
 
@@ -32,7 +58,7 @@ const useUser = create(
                     set((state: unknown) => {
                          return { user: "", data: [], roomID: "" };
                     }),
-               getGroup: (value) =>
+               setGroup: (value) =>
                     set((state) => {
                          return {
                               users: [...value],
@@ -64,6 +90,7 @@ const useUser = create(
                          };
                     }),
           }),
+
           {
                name: "data",
                partialize: (state) => ({ user: state.user }),

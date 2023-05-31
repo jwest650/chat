@@ -1,15 +1,18 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { IoCall, IoCallOutline, IoVideocam } from "react-icons/io5";
+import { IoCall, IoVideocam } from "react-icons/io5";
 import useUser from "../store/userStore";
 
 const ChatHeader = ({ socket, typing }) => {
-     const [users, roomID, darkmode, onlineUsers] = useUser((state) => [
-          state.users,
-          state.roomID,
-          state.darkmode,
-          state.onlineUsers,
-     ]);
+     const [users, roomID, darkmode, onlineUsers, chatType] = useUser(
+          (state) => [
+               state.users,
+               state.roomID,
+               state.darkmode,
+               state.onlineUsers,
+               state.chatType,
+          ]
+     );
      const [friend, setfriend] = useState("");
      const [online, setonline] = useState("offline");
 
@@ -36,8 +39,10 @@ const ChatHeader = ({ socket, typing }) => {
 
      return (
           <div
-               className={`sticky top-0 z-50 p-4 flex justify-between ${
-                    darkmode ? "bg-[#202227] " : "border-b bg-white"
+               className={`sticky top-0 z-50 p-4 flex justify-between  ${
+                    darkmode
+                         ? "bg-[#202227] text-white"
+                         : "border-b bg-[#FDFFFC]   text-[#555555]"
                }`}
           >
                <button className="flex space-x-2 items-center">
@@ -47,14 +52,14 @@ const ChatHeader = ({ socket, typing }) => {
                          height={35}
                          className="rounded-full"
                     />
-                    <div className="mt-1">
+                    <div className="mt-1 ">
                          <p className="capitalize font-bold ">{friend?.name}</p>
                          {typing == friend.name ? (
-                              <small className="capitalize text-green-500 font-bold">
+                              <small className="capitalize  font-bold">
                                    {typing} is typing
                               </small>
                          ) : (
-                              <small className="text-green-500 font-bold">
+                              <small className="text-green-500 font-bold tracking-widest">
                                    {online}
                               </small>
                          )}
@@ -63,10 +68,10 @@ const ChatHeader = ({ socket, typing }) => {
 
                <aside className="flex flex-col justify-between items-center">
                     <button>
-                         <IoCall color="blue" />
+                         <IoCall color="#555555" />
                     </button>
                     <button>
-                         <IoVideocam color="blue" />
+                         <IoVideocam color="#555555" />
                     </button>
                </aside>
           </div>

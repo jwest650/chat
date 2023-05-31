@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import useUser from "../../store/userStore";
 import Head from "next/head";
-import ClipLoader from "react-spinners/ClipLoader";
 const Login = () => {
      const [user, getUser] = useUser((state) => [state.user, state.getUser]);
      const [isloading, setisloading] = useState(false);
@@ -27,10 +26,10 @@ const Login = () => {
                getUser(result.data);
 
                router.push("/");
-               setisloading(false);
           } catch (error) {
                console.log(error);
           }
+          setisloading(false);
      }
 
      const onSubmit = async (data: unknown) => {
@@ -38,7 +37,7 @@ const Login = () => {
      };
 
      return (
-          <main className="login-bg w-screen h-screen relative bg-[#4834d4]  ">
+          <main className="login-bg w-screen h-screen relative bg-[#264653]  ">
                <Head>
                     <title>login</title>
                </Head>
@@ -99,18 +98,14 @@ const Login = () => {
 
                          <aside className="w-full flex flex-col items-center space-y-3 ">
                               <button
+                                   disabled={isloading}
                                    type="submit"
-                                   className="bg-blue-600 h-10  h text-white w-full rounded-md "
+                                   className="bg-[#2A9D8F] h-10  h text-white w-full rounded-md disabled:bg-gray-500"
                               >
-                                   <span>Sign in</span>
+                                   <span>
+                                        {isloading ? "Logging ..." : "Sign in"}
+                                   </span>
                               </button>
-                              <ClipLoader
-                                   color={"white"}
-                                   loading={isloading}
-                                   size={20}
-                                   aria-label="Loading Spinner"
-                                   data-testid="loader"
-                              />
                          </aside>
                     </form>
                </div>

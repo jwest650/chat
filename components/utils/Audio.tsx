@@ -1,8 +1,9 @@
+import dynamic from "next/dynamic";
 import { React, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { GoPlay } from "react-icons/go";
 import { MdOutlinePauseCircleFilled } from "react-icons/md";
-
-const Audio = ({ data }) => {
+const Audio = ({ data, width }) => {
+     const Wave = dynamic(() => import("./Waveform"));
      const [duration, setduration] = useState(0);
      const [remainig, setremaining] = useState(0);
 
@@ -44,17 +45,12 @@ const Audio = ({ data }) => {
           setmax(Math.floor(audio.duration));
      };
 
-     // useEffect(() => {
-     //      const audio = aud.current;
-     //      audio.addEventListener("loadedemetadata", () => {
-     //           console.log(audio.duration);
-
-     //      });
-     // }, []);
+     useEffect(() => {}, []);
 
      return (
           <section>
-               <audio
+               <Wave url={"https://wavesurfer-js.org/example/media/demo.wav"} />
+               {/* <audio
                     src={data}
                     ref={aud}
                     onTimeUpdate={updateTime}
@@ -62,7 +58,12 @@ const Audio = ({ data }) => {
                     onLoadedMetadata={loaded}
                />
 
-               <div className="w-52 h-[30px] border shadow rounded-md flex items-center relative">
+               <div
+                    className={`${
+                         width ? "w-[width]" : "w-52"
+                    } h-[30px] border shadow rounded-md flex items-center relative`}
+               >
+                    {" "}
                     <progress
                          id="file"
                          value={progress}
@@ -83,7 +84,7 @@ const Audio = ({ data }) => {
                               />
                          )}
                     </div>
-               </div>
+               </div> */}
           </section>
      );
 };

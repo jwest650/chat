@@ -2,31 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* font-family: 'Tilt Neon', cursive; */
+@font-face {
+     font-family: myFont;
+     src: url("/fonts/font1.ttf");
+}
 body {
-     font-family: "Source Sans Pro", sans-serif;
-
+     font-family: "Tajawal", sans-serif;
      width: 100%;
+     height: 100vh;
+     overflow: hidden;
+     position: relative;
 }
-/* .left {
-     font-family: "Alegreya", serif;
-} */
 
-.emoji {
-     /* width: 700px !important; */
-}
 :root {
      --base-color: #263238; /*use your base color*/
 }
-.slider::-moz-progress-bar {
-     background: #1a84ef;
-}
-.slider {
-     background-image: url("/images/wav2.png");
-     background-position: center;
-     background-size: cover;
-     background-repeat: no-repeat;
-}
+
 .loader {
      width: 60px;
      height: 40px;

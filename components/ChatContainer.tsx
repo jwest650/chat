@@ -6,37 +6,52 @@ import Message from "./Message";
 import useSWR from "swr";
 import axios from "axios";
 import EmojiPicker from "emoji-picker-react";
-
-import { motion, AnimatePresence } from "framer-motion";
+import { IoIosClose } from "react-icons/io";
+import GroupHeader from "./GroupHeader";
+import { HashLoader } from "react-spinners";
 const ChatContainer = ({ socket, onlineUsers }) => {
-     const [message, addmessage, setmessage, roomID, user, darkmode] = useUser(
-          (state) => [
-               state.data,
-
-               state.addMessages,
-               state.getMessages,
-               state.roomID,
-               state.user,
-               state.darkmode,
-          ]
-     );
+     const [
+          message,
+          addmessage,
+          setmessage,
+          roomID,
+          user,
+          darkmode,
+          chatType,
+          active,
+          selectedMsg,
+          setMesg,
+     ] = useUser((state) => [
+          state.data,
+          state.addMessages,
+          state.getMessages,
+          state.roomID,
+          state.user,
+          state.darkmode,
+          state.chatType,
+          state.active,
+          state.selectedMsg,
+          state.setMesg,
+     ]);
      const [input, setinput] = useState("");
      const [toggleEmoji, settoggleEmoji] = useState(false);
-
-     const [typing, settyping] = useState("");
-     const [sent, setsent] = useState("");
      const lastElref = useRef(null);
+
      const fetcher = async () => {
-          const { data } = await axios.get(
-               `http://localhost:5000/messages/${roomID}`
-          );
+          const url =
+               chatType !== "chats"
+                    ? "http://localhost:5000/group/messages"
+                    : "http://localhost:5000/messages";
+          if (!roomID) return;
+          const { data } = await axios.get(`${url}/${roomID}`);
+
           return data;
      };
      const {
           data: res,
           error,
           isLoading,
-     } = useSWR(["messages", roomID], fetcher, {
+     } = useSWR(["messages", roomID, chatType], fetcher, {
           revalidateIfStale: false,
           revalidateOnFocus: false,
      });
@@ -48,19 +63,20 @@ const ChatContainer = ({ socket, onlineUsers }) => {
      useEffect(() => {
           if (res) {
                let data = res?.chat.messages;
+
                setmessage(data);
           }
-     }, [res]);
+     }, [res, roomID]);
 
      useEffect(() => {
           socket.on("message", (data) => {
                addmessage(data);
-               let audio = new Audio("/sound/sound1.mp3");
-               audio.play();
+               if (data.name !== user.name) {
+                    let audio = new Audio("/sound/sound1.mp3");
+                    audio.play();
+               }
           });
-          socket.on("sent", (data) => {
-               setsent(data);
-          });
+
           return () => {
                socket.removeListener("message");
           };
@@ -68,76 +84,81 @@ const ChatContainer = ({ socket, onlineUsers }) => {
      useEffect(() => {
           lastElref.current?.scrollIntoView({ behavior: "smooth" });
      }, [message]);
-     useEffect(() => {
-          socket.on("writing", (data) => {
-               settyping(data);
-               setTimeout(() => {
-                    settyping("");
-               }, 2000);
-          });
-     }, []);
 
      return (
           <div
-               className={`flex-1 ${
-                    darkmode ? "px-[2px] " : "border-r"
-               }  h-screen   flex flex-col justify-between `}
+               className={`relative  flex-1 ${
+                    darkmode ? "bg-[#151A1B] " : "border-r bg-[#FDFFFC] "
+               }  h-screen overflow-hidden    space-y-2 `}
           >
-               <ChatHeader
-                    typing={typing}
-                    profile={res?.chat?.friend}
-                    socket={socket}
-                    onlineUsers={onlineUsers}
-               />
-               <section className=" px-8 p-3 space-y-7  overflow-hidden overflow-y-scroll h-[80%] relative">
-                    {isLoading ? (
-                         <span className="loader absolute top-[50%] left-[50%] translate-[-50%]"></span>
-                    ) : (
-                         <>
-                              {message?.map((data, i) => (
-                                   <Chat
-                                        key={i}
-                                        data={data}
-                                        lastElref={lastElref}
-                                        sent={sent}
-                                   />
-                              ))}
-                         </>
-                    )}
-               </section>
-
-               <div
-                    className={`  rounded-full mx-8 my-5 shadow ${
-                         darkmode ? "" : ""
-                    }`}
-               >
-                    <Message
+               {chatType == "chats" ? (
+                    <ChatHeader
+                         profile={res?.chat?.friend}
                          socket={socket}
-                         input={input}
-                         setinput={setinput}
-                         toggleEmoji={toggleEmoji}
-                         settoggleEmoji={settoggleEmoji}
+                         onlineUsers={onlineUsers}
                     />
-               </div>
-               {toggleEmoji ? (
-                    <AnimatePresence>
-                         <motion.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 0 }}
-                              transition={{ duration: 2 }}
-                              className=" h-[300px]  overflow-hidden overflow-y-auto pb-1 "
-                         >
-                              <EmojiPicker
-                                   onEmojiClick={addEmoji}
-                                   searchDisabled={true}
-                                   width={"100%"}
-                              />
-                         </motion.div>
-                    </AnimatePresence>
                ) : (
-                    ""
+                    <GroupHeader />
                )}
+               <main className="flex flex-col justify-between h-[85%]">
+                    <section className=" px-8  space-y-7 h-full  overflow-y-scroll  ">
+                         {isLoading ? (
+                              <div className=" absolute top-[50%] left-[50%] translate-[-50%]">
+                                   <HashLoader
+                                        loading={isLoading}
+                                        size={30}
+                                        aria-label="Loading Spinner"
+                                        data-testid="loader"
+                                   />
+                              </div>
+                         ) : (
+                              <>
+                                   {message?.map((data, i) => (
+                                        <Chat
+                                             key={i}
+                                             data={data}
+                                             lastElref={lastElref}
+                                             socket={socket}
+                                        />
+                                   ))}
+                              </>
+                         )}
+                    </section>
+
+                    <section className="">
+                         {selectedMsg && (
+                              <div className="bg-slate-100 p-4 relative">
+                                   <IoIosClose
+                                        className="absolute right-0 top-0 text-xl  cursor-pointer "
+                                        onClick={() => setMesg(null)}
+                                   />
+                                   <p className="border-l-4 border-blue-500 p-2 bg-gray-300 rounded">
+                                        {selectedMsg.message}
+                                   </p>
+                              </div>
+                         )}
+                         <div
+                              className={` rounded-full  mx-8 my-1 shadow-md border  `}
+                         >
+                              <Message
+                                   socket={socket}
+                                   input={input}
+                                   setinput={setinput}
+                                   toggleEmoji={toggleEmoji}
+                                   settoggleEmoji={settoggleEmoji}
+                              />
+                         </div>
+                         {toggleEmoji && (
+                              <div className=" h-[200px] overflow-hidden   ">
+                                   <EmojiPicker
+                                        onEmojiClick={addEmoji}
+                                        searchDisabled={true}
+                                        width={"100%"}
+                                   />
+                              </div>
+                         )}
+                    </section>
+               </main>
           </div>
      );
 };

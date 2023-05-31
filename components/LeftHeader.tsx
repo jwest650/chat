@@ -5,7 +5,7 @@ import { BiPowerOff } from "react-icons/bi";
 const LeftHeader = () => {
      return (
           <div>
-               <section className="flex justify-between items-center  ">
+               <section className="flex justify-between items-center text-[#555555]  ">
                     <button className="flex items-center space-x-1">
                          <Image
                               src={"/images/logo.svg"}
