@@ -17,7 +17,7 @@ let url =
      process.env.NODE_ENV === "production"
           ? `${process.env.HOST}`
           : "http://localhost:5000";
-let socket = io("http://localhost:5000");
+let socket = io(url);
 const Home: NextPage = () => {
      const [
           user,
@@ -69,6 +69,7 @@ const Home: NextPage = () => {
                setlastSeen((prev) => [data]);
           });
      }, [socket]);
+     console.log(url);
 
      return (
           <HydrationProvider>
