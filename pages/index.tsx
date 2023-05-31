@@ -13,7 +13,7 @@ import AddFriendModal from "../components/utils/AddFriendModal";
 import CreateGroupModal from "../components/utils/CreateGroupModal";
 import GroupRightBar from "../components/GroupRightBar";
 
-let url = "https://chattyserver-4731.onrender.com";
+let url = "https://chattyserver-4731.onrender.com/";
 
 let socket = io(url);
 const Home: NextPage = () => {
