@@ -17,7 +17,7 @@ let url =
      process.env.NODE_ENV === "production"
           ? `${process.env.HOST}`
           : "http://localhost:5000";
-let socket = io(url);
+let socket = io("http://localhost:5000");
 const Home: NextPage = () => {
      const [
           user,
