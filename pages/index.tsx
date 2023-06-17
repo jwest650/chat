@@ -67,7 +67,6 @@ const Home: NextPage = () => {
                setlastSeen((prev) => [data]);
           });
      }, [socket]);
-     console.log(url);
 
      return (
           <HydrationProvider>
