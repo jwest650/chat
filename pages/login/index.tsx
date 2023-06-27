@@ -59,14 +59,16 @@ const Login = () => {
                               <div className="bg-white flex items-center space-x-1 rounded-md p-1 relative text-sm">
                                    <div className="bg-white rotate-45 w-[10px] absolute -top-1 left-5 h-[10px]" />
                                    <BiUser />
-                                   <input
-                                        type="text"
+                                   <select
                                         placeholder="name"
-                                        className="h-10 w-full outline-none"
+                                        className="h-10 w-full outline-none bg-white"
                                         {...register("name", {
                                              required: true,
                                         })}
-                                   />
+                                   >
+                                        <option value="jay">jay</option>
+                                        <option value="prince">prince</option>
+                                   </select>
                               </div>
                               {errors.username && (
                                    <p className="text-red-400">
